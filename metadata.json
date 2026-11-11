@@ -1,0 +1,6 @@
+{
+  "name": "المنصة الوطنية الأردنية للأعمال والمحاسبة والضرائب (JoFotara & ISTD)",
+  "description": "المنظومة الوطنية المتكاملة للمحاسبة، الضرائب، الفوترة الإلكترونية (JoFotara)، إقرارات دائرة ضريبة الدخل والمبيعات (ISTD)، والتدقيق القانوني (JCPA) في المملكة الأردنية الهاشمية.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
