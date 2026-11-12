@@ -28,6 +28,14 @@ import {
 import {
   AccountingCycleStore,
 } from '../../services/accounting/AccountingCycleStore';
+import {
+  BizJoRelationalSchemaStore,
+  DEFAULT_COMPANY_RECORD,
+  VendorTableRecord,
+  ProductServiceTableRecord,
+  QuoteTableRecord,
+  ContractTableRecord,
+} from '../../services/db/BizJoRelationalSchemaStore';
 import { exportArabicReportToPdf } from '../../utils/pdfExport';
 import { SidebarItemId } from './SimpleHomeDashboard';
 
@@ -140,6 +148,24 @@ export default function ErpModulesWorkspace({
   const [parties, setParties] = useState(() => AccountingCycleStore.getParties());
   const [selectedPartyId, setSelectedPartyId] = useState<string>('CUST-01');
   const [bannerMsg, setBannerMsg] = useState<string | null>(null);
+
+  // Live Relational Tables (vendors, products_services, quotes, contracts -> companies)
+  const [relTab, setRelTab] = useState<'vendors' | 'products_services' | 'quotes' | 'contracts'>(
+    sectionId === 'biz-vendors' ? 'vendors' : sectionId === 'biz-contracts' ? 'contracts' : 'quotes'
+  );
+  const [vendorsDb, setVendorsDb] = useState<VendorTableRecord[]>(() => BizJoRelationalSchemaStore.getVendors());
+  const [productsDb, setProductsDb] = useState<ProductServiceTableRecord[]>(() => BizJoRelationalSchemaStore.getProductsServices());
+  const [quotesDb, setQuotesDb] = useState<QuoteTableRecord[]>(() => BizJoRelationalSchemaStore.getQuotes());
+  const [contractsDb, setContractsDb] = useState<ContractTableRecord[]>(() => BizJoRelationalSchemaStore.getContracts());
+
+  const refreshRelationalDb = () => {
+    setVendorsDb(BizJoRelationalSchemaStore.getVendors());
+    setProductsDb(BizJoRelationalSchemaStore.getProductsServices());
+    setQuotesDb(BizJoRelationalSchemaStore.getQuotes());
+    setContractsDb(BizJoRelationalSchemaStore.getContracts());
+    setCycleData(AccountingCycleStore.computeFullFinancialCycle());
+    setParties(AccountingCycleStore.getParties());
+  };
 
   // Commercial Billing & Vouchers Action Tab
   const [billingMode, setBillingMode] = useState<
@@ -882,6 +908,222 @@ export default function ErpModulesWorkspace({
               </>
             )}
           </div>
+        </div>
+
+        {/* Relational Pre-Accounting Tables Linked to companies (vendors, products_services, quotes, contracts) */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-emerald-500/30 p-6 shadow-sm space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+            <div>
+              <div className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">
+                الجداول العلائقية المرتبطة بجدول الشركات (`companies.id = {DEFAULT_COMPANY_RECORD.id}`) والدورة المحاسبية
+              </div>
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">
+                البائعون (`vendors`) · المنتجات والخدمات (`products_services`) · عروض الأسعار (`quotes`) · العقود (`contracts`)
+              </h3>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { id: 'vendors' as const, label: `البائعون (vendors) [${vendorsDb.length}]` },
+                { id: 'products_services' as const, label: `المنتجات والخدمات (products_services) [${productsDb.length}]` },
+                { id: 'quotes' as const, label: `عروض الأسعار (quotes) [${quotesDb.length}]` },
+                { id: 'contracts' as const, label: `العقود (contracts) [${contractsDb.length}]` },
+              ].map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setRelTab(t.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    relTab === t.id
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {relTab === 'vendors' && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-right border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
+                    <th className="py-2 px-2">رمز البائع</th>
+                    <th className="py-2 px-2">المفتاح الخارجي (FK)</th>
+                    <th className="py-2 px-2">اسم البائع / المورد</th>
+                    <th className="py-2 px-2">الرقم الضريبي</th>
+                    <th className="py-2 px-2">نسبة اقتطاع WHT</th>
+                    <th className="py-2 px-2">حساب الأستاذ العام</th>
+                    <th className="py-2 px-2">الرصيد الافتتاحي</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                  {vendorsDb.map((v) => (
+                    <tr key={v.id}>
+                      <td className="py-2 px-2 font-mono font-bold">{v.vendor_code}</td>
+                      <td className="py-2 px-2 font-mono text-emerald-600 dark:text-emerald-400">companies#{v.company_id}</td>
+                      <td className="py-2 px-2 font-bold">{v.vendor_name}</td>
+                      <td className="py-2 px-2 font-mono">{v.tax_number}</td>
+                      <td className="py-2 px-2 font-mono">{v.withholding_tax_rate}%</td>
+                      <td className="py-2 px-2 font-mono text-sky-600 dark:text-sky-400">{v.ap_gl_account_code} (ذمم دائنة)</td>
+                      <td className="py-2 px-2 font-mono font-bold">{v.opening_balance_jod.toFixed(3)} د.أ</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {relTab === 'products_services' && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-right border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
+                    <th className="py-2 px-2">SKU</th>
+                    <th className="py-2 px-2">company_id (FK)</th>
+                    <th className="py-2 px-2">default_vendor_id (FK)</th>
+                    <th className="py-2 px-2">اسم المنتج / الخدمة</th>
+                    <th className="py-2 px-2">سعر الوحدة</th>
+                    <th className="py-2 px-2">التكلفة</th>
+                    <th className="py-2 px-2">الضريبة</th>
+                    <th className="py-2 px-2">حساب الإيراد / التكلفة</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                  {productsDb.map((p) => (
+                    <tr key={p.id}>
+                      <td className="py-2 px-2 font-mono font-bold">{p.sku_code}</td>
+                      <td className="py-2 px-2 font-mono text-emerald-600 dark:text-emerald-400">companies#{p.company_id}</td>
+                      <td className="py-2 px-2 font-mono text-amber-600 dark:text-amber-400">
+                        {p.default_vendor_id ? `vendors#${p.default_vendor_id}` : '—'}
+                      </td>
+                      <td className="py-2 px-2 font-bold">{p.item_name}</td>
+                      <td className="py-2 px-2 font-mono font-bold">{p.unit_price.toFixed(3)} د.أ</td>
+                      <td className="py-2 px-2 font-mono">{p.cost_price.toFixed(3)} د.أ</td>
+                      <td className="py-2 px-2 font-mono">{p.tax_rate}%</td>
+                      <td className="py-2 px-2 font-mono text-sky-600 dark:text-sky-400">
+                        {p.revenue_gl_account_code} / {p.cogs_gl_account_code}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {relTab === 'quotes' && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-right border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
+                    <th className="py-2 px-2">رقم عرض السعر</th>
+                    <th className="py-2 px-2">company_id (FK)</th>
+                    <th className="py-2 px-2">العميل</th>
+                    <th className="py-2 px-2">المنتج/الخدمة (FK)</th>
+                    <th className="py-2 px-2">الصافي</th>
+                    <th className="py-2 px-2">الضريبة</th>
+                    <th className="py-2 px-2">الإجمالي</th>
+                    <th className="py-2 px-2">الترحيل للدورة المحاسبية</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                  {quotesDb.map((q) => (
+                    <tr key={q.id}>
+                      <td className="py-2 px-2 font-mono font-bold">{q.quote_number}</td>
+                      <td className="py-2 px-2 font-mono text-emerald-600 dark:text-emerald-400">companies#{q.company_id}</td>
+                      <td className="py-2 px-2 font-bold">{q.customer_name}</td>
+                      <td className="py-2 px-2 font-mono text-amber-600 dark:text-amber-400">
+                        products_services#{q.product_service_id}
+                      </td>
+                      <td className="py-2 px-2 font-mono">{q.subtotal.toFixed(3)} د.أ</td>
+                      <td className="py-2 px-2 font-mono">{q.tax_amount.toFixed(3)} د.أ</td>
+                      <td className="py-2 px-2 font-mono font-bold">{q.total_amount.toFixed(3)} د.أ</td>
+                      <td className="py-2 px-2">
+                        {q.status === 'ConvertedToInvoice' ? (
+                          <span className="px-2 py-1 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] font-bold">
+                            تم الترحيل ({q.converted_invoice_number})
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const res = BizJoRelationalSchemaStore.convertQuoteToInvoiceAndLedger(q.id);
+                              if (res) {
+                                refreshRelationalDb();
+                                showSuccessBanner(
+                                  `تم تحويل عرض السعر ${q.quote_number} إلى فاتورة (${res.invoiceNumber}) وترحيل القيد (${res.voucherNo}) إلى الأستاذ العام!`
+                                );
+                              }
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold cursor-pointer"
+                          >
+                            تحويل لفاتورة وقيد يومية ➔
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {relTab === 'contracts' && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-right border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
+                    <th className="py-2 px-2">رقم العقد</th>
+                    <th className="py-2 px-2">company_id (FK)</th>
+                    <th className="py-2 px-2">عنوان العقد والطرف</th>
+                    <th className="py-2 px-2">قيمة العقد</th>
+                    <th className="py-2 px-2">المفوتر</th>
+                    <th className="py-2 px-2">المتبقي</th>
+                    <th className="py-2 px-2">رسوم الطوابع</th>
+                    <th className="py-2 px-2">فوترة دفعة لليومية</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                  {contractsDb.map((c) => (
+                    <tr key={c.id}>
+                      <td className="py-2 px-2 font-mono font-bold">{c.contract_number}</td>
+                      <td className="py-2 px-2 font-mono text-emerald-600 dark:text-emerald-400">companies#{c.company_id}</td>
+                      <td className="py-2 px-2">
+                        <div className="font-bold">{c.contract_title}</div>
+                        <div className="text-[11px] text-slate-500">{c.party_name} ({c.party_type})</div>
+                      </td>
+                      <td className="py-2 px-2 font-mono font-bold">{c.contract_value.toFixed(3)} د.أ</td>
+                      <td className="py-2 px-2 font-mono text-emerald-600 dark:text-emerald-400">{c.billed_amount.toFixed(3)} د.أ</td>
+                      <td className="py-2 px-2 font-mono text-amber-600 dark:text-amber-400">{c.remaining_amount.toFixed(3)} د.أ</td>
+                      <td className="py-2 px-2 font-mono">{c.stamp_duty_paid.toFixed(3)} د.أ</td>
+                      <td className="py-2 px-2">
+                        {c.remaining_amount > 0 ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const res = BizJoRelationalSchemaStore.billContractMilestoneToLedger(c.id, 1500);
+                              if (res) {
+                                refreshRelationalDb();
+                                showSuccessBanner(
+                                  `تم فوترة دفعة العقد ${c.contract_number} بمستند (${res.docNo}) وترحيل القيد (${res.voucherNo}) إلى الأستاذ العام!`
+                                );
+                              }
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold cursor-pointer"
+                          >
+                            فوترة دفعة (1,500 د.أ) ➔
+                          </button>
+                        ) : (
+                          <span className="text-[11px] text-slate-400">مكتمل</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Contracts & Projects Summary if user selected biz-contracts or biz-projects */}

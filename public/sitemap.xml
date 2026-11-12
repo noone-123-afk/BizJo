@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Main Business Directory (/business/*) -->
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/business/dashboard</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/business/customers</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/business/vendors</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/business/contracts</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/business/projects</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Accounting Cycle Directory (/accounting/*) -->
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/accounting/chart-of-accounts</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/accounting/general-journal</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/accounting/general-ledger</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/accounting/trial-balance</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/accounting/financial-statements</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <!-- Jordanian Taxes & JoFotara Directory (/taxes/*) -->
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/taxes/tax-profile</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/taxes/income-tax</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/taxes/sales-tax-vat</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/taxes/jofotara-einvoicing</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/taxes/tax-compliance</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- HR & Social Security Directory (/hr/*) -->
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/hr/employees</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/hr/payroll</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/hr/social-security</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Financial Analysis & CFO Directory (/analysis/*) -->
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/analysis/financial-kpis</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/analysis/feasibility-study</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/analysis/cfo-dashboard</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Help, Laws & SEO Directory (/help/*) -->
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/help/jordan-laws</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/help/faq</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/help/seo-search-central</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Policies Directory (/policies/*) -->
+  <url>
+    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/policies/legal-and-privacy</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>

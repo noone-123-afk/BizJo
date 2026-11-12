@@ -26,8 +26,10 @@ export default function BizJoLogo({
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             className="w-4/5 h-4/5"
-            aria-label="شعار BizJo"
+            role="img"
+            aria-label="شعار منصة BizJo للأعمال والمحاسبة والفوترة الإلكترونية والامتثال الضريبي في الأردن"
           >
+            <title>شعار منصة BizJo للأعمال والمحاسبة والامتثال الضريبي الأردنية</title>
             {/* Outer Shield / Ledger Frame */}
             <path
               d="M8 10C8 7.79086 9.79086 6 12 6H28C30.2091 6 32 7.79086 32 10V22C32 28.6274 26.6274 34 20 35.5C13.3726 34 8 28.6274 8 22V10Z"

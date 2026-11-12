@@ -67,6 +67,7 @@ export type SidebarItemId =
   | 'help-laws'
   | 'help-faq'
   | 'help-advisor'
+  | 'help-seo'
   // 8. المرحلة التنفيذية الثانية + MVP + ERD
   | 'p2-mvp-suite'
   | 'p2-notifications'
@@ -432,6 +433,13 @@ export default function SimpleHomeDashboard({ onSelectSection }: SimpleHomeDashb
               className="px-3 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-700 dark:text-sky-300 font-bold cursor-pointer"
             >
               System Health: 93%
+            </button>
+            <button
+              type="button"
+              onClick={() => onSelectSection('help-seo')}
+              className="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-bold cursor-pointer"
+            >
+              معايير Google Search Central SEO (100%)
             </button>
           </div>
           <button

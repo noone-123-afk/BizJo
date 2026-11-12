@@ -1,0 +1,19 @@
+# BizJo — Google Search Central Compliant robots.txt
+User-agent: *
+Allow: /
+Allow: /assets/
+Allow: /business/
+Allow: /accounting/
+Allow: /taxes/
+Allow: /hr/
+Allow: /analysis/
+Allow: /documents/
+Allow: /help/
+Allow: /phase-two/
+Allow: /policies/
+
+Disallow: /private-drafts/
+Disallow: /temp-exports/
+Disallow: /api/internal/
+
+Sitemap: https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/sitemap.xml

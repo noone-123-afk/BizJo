@@ -22,6 +22,9 @@ import {
   Sparkles,
 } from 'lucide-react';
 import JordanLocalBusinessSchema from './components/seo/JordanLocalBusinessSchema';
+import SeoBreadcrumbBar from './components/seo/SeoBreadcrumbBar';
+import SeoSearchCentralHub from './components/seo/SeoSearchCentralHub';
+import { BizJoSeoEngine, SEO_PAGE_REGISTRY } from './services/seo/BizJoSeoEngine';
 import BizJoLogo from './components/brand/BizJoLogo';
 import SimpleHomeDashboard, { SidebarItemId } from './components/erp/SimpleHomeDashboard';
 import ErpModulesWorkspace from './components/erp/ErpModulesWorkspace';
@@ -154,6 +157,7 @@ const SIDEBAR_GROUPS: SidebarGroup[] = [
       { id: 'help-laws', label: 'المركز القانوني' },
       { id: 'help-faq', label: 'الأسئلة الشائعة' },
       { id: 'help-advisor', label: 'المساعد الذكي' },
+      { id: 'help-seo', label: 'تحسين محركات البحث (SEO)' },
     ],
   },
   {
@@ -179,7 +183,13 @@ const SIDEBAR_GROUPS: SidebarGroup[] = [
 ];
 
 export default function App() {
-  const [activeSidebarItem, setActiveSidebarItem] = useState<SidebarItemId>('biz-dashboard');
+  const [activeSidebarItem, setActiveSidebarItem] = useState<SidebarItemId>(() => {
+    if (typeof window !== 'undefined') {
+      const matchedFromUrl = BizJoSeoEngine.findSectionByPath(window.location.pathname);
+      if (matchedFromUrl) return matchedFromUrl;
+    }
+    return 'biz-dashboard';
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [showPoliciesModal, setShowPoliciesModal] = useState<boolean>(false);
   const [isDark, setIsDark] = useState<boolean>(true);
@@ -199,6 +209,22 @@ export default function App() {
     root.dir = lang === 'ar' ? 'rtl' : 'ltr';
     root.lang = lang;
   }, [lang]);
+
+  // Synchronize page <title>, <meta name="description">, <link rel="canonical">, and descriptive URL
+  useEffect(() => {
+    BizJoSeoEngine.syncPageSeoToDom(activeSidebarItem, true);
+  }, [activeSidebarItem]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const matched = BizJoSeoEngine.findSectionByPath(window.location.pathname);
+      if (matched) {
+        setActiveSidebarItem(matched);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const handleSelectSidebar = (itemId: SidebarItemId) => {
     setActiveSidebarItem(itemId);
@@ -249,7 +275,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
-      <JordanLocalBusinessSchema />
+      <JordanLocalBusinessSchema activeSection={activeSidebarItem} />
       <DisclaimerBanner />
 
       {/* Top Navigation Bar — Clean & Focused */}
@@ -264,39 +290,50 @@ export default function App() {
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
             <a
-              href="#dashboard"
+              href="/business/dashboard"
               onClick={(e) => {
                 e.preventDefault();
                 handleSelectSidebar('biz-dashboard');
               }}
               className="shrink-0 focus:outline-none"
-              aria-label="BizJo Home"
+              aria-label="BizJo الصفحة الرئيسية لنظام الأعمال والمحاسبة والضرائب"
             >
               <BizJoLogo size="md" showTagline={true} />
             </a>
           </div>
 
-          {/* Quick Top Links matching the 5 Main Dashboard Areas + Phase 2 Suite */}
-          <nav className="hidden md:flex items-center gap-5 text-xs font-bold text-slate-600 dark:text-slate-400">
+          {/* Quick Top Links matching the 5 Main Dashboard Areas + Phase 2 & SEO Suite */}
+          <nav
+            aria-label="التنقل الرئيسي السريع"
+            className="hidden md:flex items-center gap-5 text-xs font-bold text-slate-600 dark:text-slate-400"
+          >
             {[
               { id: 'biz-dashboard' as SidebarItemId, label: 'لوحة التحكم' },
               { id: 'p2-mvp-suite' as SidebarItemId, label: 'صحة الأعمال (91/100) والـ MVP' },
               { id: 'biz-customers' as SidebarItemId, label: 'الأعمال والفواتير' },
               { id: 'acc-statements' as SidebarItemId, label: 'الدورة المحاسبية' },
               { id: 'p2-erd-schema' as SidebarItemId, label: 'مخطط ERD (21 جدول SQL)' },
-            ].map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleSelectSidebar(item.id)}
-                className={`py-1 transition-colors whitespace-nowrap shrink-0 border-b-2 cursor-pointer ${
-                  activeSidebarItem === item.id
-                    ? 'border-emerald-500 text-slate-900 dark:text-white'
-                    : 'border-transparent hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+              { id: 'help-seo' as SidebarItemId, label: 'معايير Google SEO' },
+            ].map((item) => {
+              const hrefPath = SEO_PAGE_REGISTRY[item.id]?.canonicalPath || '/business/dashboard';
+              return (
+                <a
+                  key={item.id}
+                  href={hrefPath}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSelectSidebar(item.id);
+                  }}
+                  className={`py-1 transition-colors whitespace-nowrap shrink-0 border-b-2 cursor-pointer ${
+                    activeSidebarItem === item.id
+                      ? 'border-emerald-500 text-slate-900 dark:text-white'
+                      : 'border-transparent hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
           </nav>
 
           {/* Primary Action + Theme/Language */}
@@ -354,10 +391,15 @@ export default function App() {
                   <div className="space-y-0.5">
                     {group.items.map((item) => {
                       const isActive = activeSidebarItem === item.id;
+                      const itemUrl = SEO_PAGE_REGISTRY[item.id]?.canonicalPath || '/business/dashboard';
                       return (
-                        <button
+                        <a
                           key={item.id}
-                          onClick={() => handleSelectSidebar(item.id)}
+                          href={itemUrl}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleSelectSidebar(item.id);
+                          }}
                           className={`w-full text-right px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
                             isActive
                               ? 'bg-emerald-600 text-white shadow-sm'
@@ -376,7 +418,7 @@ export default function App() {
                               92%
                             </span>
                           )}
-                        </button>
+                        </a>
                       );
                     })}
                   </div>
@@ -397,6 +439,12 @@ export default function App() {
 
           {/* Main Workspace Area */}
           <main className="lg:col-span-9 xl:col-span-10 space-y-6">
+            {/* Semantic Breadcrumb Navigation Bar (Google Search Central Breadcrumb & Canonical URL) */}
+            <SeoBreadcrumbBar
+              activeSection={activeSidebarItem}
+              onSelectSection={handleSelectSidebar}
+            />
+
             {/* 1. HOME PAGE: Ultra-Clean 5 Sections + 6-Step User Journey ONLY */}
             {activeSidebarItem === 'biz-dashboard' && (
               <SimpleHomeDashboard onSelectSection={handleSelectSidebar} />
@@ -483,6 +531,11 @@ export default function App() {
               />
             )}
 
+            {/* 7. GOOGLE SEARCH CENTRAL SEO STARTER GUIDE HUB */}
+            {activeSidebarItem === 'help-seo' && (
+              <SeoSearchCentralHub onSelectSection={handleSelectSidebar} />
+            )}
+
             {/* Optional Policies Drawer when requested by user */}
             {showPoliciesModal && (
               <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
@@ -495,7 +548,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Quiet Institutional Footer */}
+      {/* Quiet Institutional Footer with Crawlable Descriptive Anchor Links */}
       <footer className="mt-8 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-6">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 space-y-3 text-xs text-slate-500 dark:text-slate-400">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -505,26 +558,58 @@ export default function App() {
               <span>{t.common.platformName}</span>
             </div>
             <div className="flex flex-wrap items-center gap-4">
-              <button
-                onClick={() => handleSelectSidebar('biz-dashboard')}
+              <a
+                href="/business/dashboard"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSelectSidebar('biz-dashboard');
+                }}
                 className="hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
-                لوحة التحكم الرئيسية
-              </button>
+                لوحة التحكم الرئيسية للأعمال
+              </a>
               <span aria-hidden="true">·</span>
-              <button
-                onClick={() => handleSelectSidebar('tax-jofotara')}
+              <a
+                href="/taxes/jofotara-einvoicing"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSelectSidebar('tax-jofotara');
+                }}
                 className="hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
-                الفوترة الإلكترونية JoFotara
-              </button>
+                نظام الفوترة الإلكترونية الأردني JoFotara
+              </a>
               <span aria-hidden="true">·</span>
-              <button
-                onClick={() => handleSelectSidebar('doc-archive')}
+              <a
+                href="/documents/archive"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSelectSidebar('doc-archive');
+                }}
                 className="hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
-                سجل القرارات والموافقات
-              </button>
+                سجل القرارات ومسار التدقيق
+              </a>
+              <span aria-hidden="true">·</span>
+              <a
+                href="/help/seo-search-central"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSelectSidebar('help-seo');
+                }}
+                className="hover:text-slate-900 dark:hover:text-white cursor-pointer"
+              >
+                مركز تحسين محركات البحث (SEO)
+              </a>
+              <span aria-hidden="true">·</span>
+              <a
+                href="/sitemap.xml"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-slate-900 dark:hover:text-white"
+              >
+                خريطة الموقع (Sitemap.xml)
+              </a>
               <span aria-hidden="true">·</span>
               <button
                 onClick={() => setShowPoliciesModal(!showPoliciesModal)}
