@@ -2,31 +2,31 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Main Business Directory (/business/*) -->
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/business/dashboard</loc>
+    <loc>https://bizjo-istd.ai.studio/business/dashboard</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/business/customers</loc>
+    <loc>https://bizjo-istd.ai.studio/business/customers</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/business/vendors</loc>
+    <loc>https://bizjo-istd.ai.studio/business/vendors</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/business/contracts</loc>
+    <loc>https://bizjo-istd.ai.studio/business/contracts</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/business/projects</loc>
+    <loc>https://bizjo-istd.ai.studio/business/projects</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -34,31 +34,31 @@
 
   <!-- Accounting Cycle Directory (/accounting/*) -->
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/accounting/chart-of-accounts</loc>
+    <loc>https://bizjo-istd.ai.studio/accounting/chart-of-accounts</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/accounting/general-journal</loc>
+    <loc>https://bizjo-istd.ai.studio/accounting/general-journal</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/accounting/general-ledger</loc>
+    <loc>https://bizjo-istd.ai.studio/accounting/general-ledger</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/accounting/trial-balance</loc>
+    <loc>https://bizjo-istd.ai.studio/accounting/trial-balance</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/accounting/financial-statements</loc>
+    <loc>https://bizjo-istd.ai.studio/accounting/financial-statements</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
@@ -66,31 +66,31 @@
 
   <!-- Jordanian Taxes & JoFotara Directory (/taxes/*) -->
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/taxes/tax-profile</loc>
+    <loc>https://bizjo-istd.ai.studio/taxes/tax-profile</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/taxes/income-tax</loc>
+    <loc>https://bizjo-istd.ai.studio/taxes/income-tax</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/taxes/sales-tax-vat</loc>
+    <loc>https://bizjo-istd.ai.studio/taxes/sales-tax-vat</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/taxes/jofotara-einvoicing</loc>
+    <loc>https://bizjo-istd.ai.studio/taxes/jofotara-einvoicing</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/taxes/tax-compliance</loc>
+    <loc>https://bizjo-istd.ai.studio/taxes/tax-compliance</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -98,19 +98,19 @@
 
   <!-- HR & Social Security Directory (/hr/*) -->
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/hr/employees</loc>
+    <loc>https://bizjo-istd.ai.studio/hr/employees</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/hr/payroll</loc>
+    <loc>https://bizjo-istd.ai.studio/hr/payroll</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/hr/social-security</loc>
+    <loc>https://bizjo-istd.ai.studio/hr/social-security</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
@@ -118,19 +118,19 @@
 
   <!-- Financial Analysis & CFO Directory (/analysis/*) -->
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/analysis/financial-kpis</loc>
+    <loc>https://bizjo-istd.ai.studio/analysis/financial-kpis</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/analysis/feasibility-study</loc>
+    <loc>https://bizjo-istd.ai.studio/analysis/feasibility-study</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/analysis/cfo-dashboard</loc>
+    <loc>https://bizjo-istd.ai.studio/analysis/cfo-dashboard</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -138,19 +138,19 @@
 
   <!-- Help, Laws & SEO Directory (/help/*) -->
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/help/jordan-laws</loc>
+    <loc>https://bizjo-istd.ai.studio/help/jordan-laws</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/help/faq</loc>
+    <loc>https://bizjo-istd.ai.studio/help/faq</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/help/seo-search-central</loc>
+    <loc>https://bizjo-istd.ai.studio/help/seo-search-central</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
@@ -158,7 +158,7 @@
 
   <!-- Policies Directory (/policies/*) -->
   <url>
-    <loc>https://ais-pre-fg46wb64rhuxuizt5hohvg-551936965486.europe-west2.run.app/policies/legal-and-privacy</loc>
+    <loc>https://bizjo-istd.ai.studio/policies/legal-and-privacy</loc>
     <lastmod>2026-11-11</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>

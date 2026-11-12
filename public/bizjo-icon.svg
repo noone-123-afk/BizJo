@@ -1,0 +1,13 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="16" fill="#0F172A"/>
+  <path
+    d="M14 16C14 12.6863 16.6863 10 20 10H44C47.3137 10 50 12.6863 50 16V35C50 45.4934 41.4934 54 32 56.5C22.5066 54 14 45.4934 14 35V16Z"
+    stroke="#10B981"
+    stroke-width="4"
+    fill="rgba(16, 185, 129, 0.16)"
+  />
+  <rect x="21" y="33" width="5" height="11" rx="1.5" fill="#34D399" />
+  <rect x="29.5" y="26" width="5" height="18" rx="1.5" fill="#10B981" />
+  <rect x="38" y="19" width="5" height="25" rx="1.5" fill="#A7F3D0" />
+  <circle cx="23.5" cy="21.5" r="3" fill="#F59E0B" />
+</svg>

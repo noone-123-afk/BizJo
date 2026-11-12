@@ -1,0 +1,19 @@
+{
+  "name": "BizJo",
+  "short_name": "BizJo",
+  "description": "BizJo — منصة الأعمال والمحاسبة والفوترة الإلكترونية والامتثال الضريبي في الأردن",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#059669",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/bizjo-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
