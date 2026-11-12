@@ -6,10 +6,10 @@ export default function JordanLocalBusinessSchema() {
     '@graph': [
       {
         '@type': ['AccountingService', 'TaxService', 'LegalService'],
-        name: 'منصة الأعمال والمحاسبة والامتثال الضريبي الأردنية',
+        name: 'BizJo — منصة الأعمال والمحاسبة والامتثال الضريبي الأردنية',
         description:
-          'منصة رقمية متكاملة تساعد الأفراد والشركات ورواد الأعمال على إدارة الحسابات والضرائب والفواتير الإلكترونية وتحليل الأداء المالي وفق التشريعات والأنظمة المعمول بها في المملكة الأردنية الهاشمية.',
-        url: typeof window !== 'undefined' ? window.location.origin : 'https://jordan-business-hub.jo',
+          'BizJo: منصة رقمية متكاملة تساعد الأفراد والشركات ورواد الأعمال على إدارة الحسابات والضرائب والفواتير الإلكترونية وتحليل الأداء المالي وفق التشريعات والأنظمة المعمول بها في المملكة الأردنية الهاشمية.',
+        url: typeof window !== 'undefined' ? window.location.origin : 'https://bizjo.jo',
         telephone: '+962-6-5000000',
         priceRange: 'JOD',
         currenciesAccepted: 'JOD',
@@ -29,7 +29,7 @@ export default function JordanLocalBusinessSchema() {
       },
       {
         '@type': 'WebApplication',
-        name: 'منصة الأعمال والمحاسبة والامتثال الضريبي الأردنية',
+        name: 'BizJo',
         applicationCategory: 'FinanceApplication',
         operatingSystem: 'All',
         offers: {

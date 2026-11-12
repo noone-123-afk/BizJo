@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { AccountingCycleStore } from '../../services/accounting/AccountingCycleStore';
 import { exportArabicReportToPdf } from '../../utils/pdfExport';
+import BizJoLogo from '../brand/BizJoLogo';
 
 Decimal.set({ precision: 28, rounding: Decimal.ROUND_HALF_UP });
 
@@ -350,12 +351,17 @@ export default function SimpleHomeDashboard({ onSelectSection }: SimpleHomeDashb
     <div className="space-y-8">
       {/* Guided User Journey Ribbon (رحلة المستخدم من إنشاء الشركة حتى استخراج التقارير) */}
       <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-          <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-emerald-500" />
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-              رحلة المستخدم المتسلسلة في النظام (من تأسيس المنشأة حتى استخراج القوائم المالية والتقارير)
-            </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-3">
+            <BizJoLogo size="sm" showTagline={false} />
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+                رحلة المستخدم المتسلسلة في BizJo (من تأسيس الشركة وعروض الأسعار والعقود حتى القوائم المالية)
+              </h2>
+              <p className="text-[11px] text-slate-500">
+                قاعدة بيانات علائقية متكاملة تربط البائعين (`vendors`) والمنتجات (`products_services`) وعروض الأسعار (`quotes`) والعقود (`contracts`) بجدول الشركات (`companies`).
+              </p>
+            </div>
           </div>
           <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
             انقر على أي خطوة للانتقال المباشر إليها

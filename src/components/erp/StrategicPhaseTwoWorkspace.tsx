@@ -28,6 +28,14 @@ import {
   Layers,
 } from 'lucide-react';
 import { AccountingCycleStore } from '../../services/accounting/AccountingCycleStore';
+import {
+  BizJoRelationalSchemaStore,
+  DEFAULT_COMPANY_RECORD,
+  VendorTableRecord,
+  ProductServiceTableRecord,
+  QuoteTableRecord,
+  ContractTableRecord,
+} from '../../services/db/BizJoRelationalSchemaStore';
 import { exportArabicReportToPdf } from '../../utils/pdfExport';
 import { SidebarItemId } from './SimpleHomeDashboard';
 
@@ -448,8 +456,10 @@ const SECTOR_BENCHMARKS_DATA: Record<
 };
 
 export const FULL_21_TABLES_SQL_DDL = `-- ============================================================================
--- مخطط قاعدة البيانات الشامل لمنصة الأعمال والمحاسبة والامتثال الضريبي الأردنية
+-- مخطط قاعدة البيانات الشامل لمنصة BizJo للأعمال والمحاسبة والامتثال الضريبي
 -- يشمل 21 جدولاً مترابطاً (ERD كامل من MVP حتى ERP المتكامل)
+-- مع ربط جداول (vendors, products_services, quotes, contracts) بجدول (companies)
+-- عبر المفاتيح الخارجية (FOREIGN KEYS) لتمهيد الطريق للدورة المحاسبية الكاملة
 -- ============================================================================
 
 CREATE TABLE users (
@@ -482,7 +492,7 @@ CREATE TABLE companies (
   status VARCHAR(30) DEFAULT 'active',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(user_id) REFERENCES users(id)
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE company_owners (
@@ -498,7 +508,7 @@ CREATE TABLE company_owners (
   ownership_percentage DECIMAL(5,2),
   legal_capacity VARCHAR(100),
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(company_id) REFERENCES companies(id)
+  FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
 CREATE TABLE company_authorized_persons (
@@ -514,7 +524,7 @@ CREATE TABLE company_authorized_persons (
   authorization_end DATE,
   is_active BOOLEAN DEFAULT TRUE,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(company_id) REFERENCES companies(id)
+  FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
 CREATE TABLE tax_profiles (
@@ -528,7 +538,7 @@ CREATE TABLE tax_profiles (
   sales_tax_rate DECIMAL(5,2),
   notes TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(company_id) REFERENCES companies(id)
+  FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
 CREATE TABLE company_documents (
@@ -542,7 +552,7 @@ CREATE TABLE company_documents (
   status VARCHAR(50),
   uploaded_by INTEGER,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(company_id) REFERENCES companies(id)
+  FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
 CREATE TABLE customers (
@@ -566,14 +576,23 @@ CREATE TABLE customers (
   notes TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(company_id) REFERENCES companies(id)
+  FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
--- الجداول الأربعة الإضافية لتكامل الـ ERP (الموردون، الأصناف والخدمات، عروض الأسعار، العقود)
+-- ============================================================================
+-- الجداول الأربعة الأساسية التمهيدية للدورة المحاسبية الكاملة:
+-- 1. الباعة / الموردون (vendors)
+-- 2. المنتجات والخدمات (products_services)
+-- 3. عروض الأسعار / يقتبس (quotes)
+-- 4. العقود والاتفاقيات (contracts)
+-- مرتبطة بجدول الشركات (companies) عبر المفاتيح الخارجية (FOREIGN KEYS)
+-- ============================================================================
+
 CREATE TABLE vendors (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   company_id INTEGER NOT NULL,
-  vendor_type VARCHAR(50),
+  vendor_code VARCHAR(50) UNIQUE,
+  vendor_type VARCHAR(50) DEFAULT 'Company', -- Company | Individual | International
   vendor_name VARCHAR(255) NOT NULL,
   trade_name VARCHAR(255),
   tax_number VARCHAR(100),
@@ -584,61 +603,83 @@ CREATE TABLE vendors (
   address TEXT,
   payment_terms INTEGER DEFAULT 30,
   withholding_tax_rate DECIMAL(5,2) DEFAULT 0.00,
+  ap_gl_account_code VARCHAR(20) DEFAULT '2101', -- حساب ذمم الموردين في الأستاذ العام
+  opening_balance_jod DECIMAL(18,3) DEFAULT 0.000,
   status VARCHAR(50) DEFAULT 'active',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(company_id) REFERENCES companies(id)
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_vendors_company FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
 CREATE TABLE products_services (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   company_id INTEGER NOT NULL,
+  default_vendor_id INTEGER,
   sku_code VARCHAR(100) UNIQUE,
-  item_type VARCHAR(50), -- Product | Service
+  item_type VARCHAR(50) NOT NULL, -- Product | Service
   item_name VARCHAR(255) NOT NULL,
   description TEXT,
   unit_price DECIMAL(18,3) NOT NULL,
   cost_price DECIMAL(18,3) DEFAULT 0.000,
   tax_rate DECIMAL(6,2) DEFAULT 16.00,
   jofotara_classification_code VARCHAR(100),
+  revenue_gl_account_code VARCHAR(20) DEFAULT '4101', -- حساب إيرادات المبيعات في الأستاذ العام
+  cogs_gl_account_code VARCHAR(20) DEFAULT '5101', -- حساب تكلفة البضاعة المباعة
+  inventory_gl_account_code VARCHAR(20) DEFAULT '1105', -- حساب المخزون السلعي
   stock_quantity DECIMAL(18,3) DEFAULT 0.000,
   status VARCHAR(30) DEFAULT 'active',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(company_id) REFERENCES companies(id)
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_products_services_company FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE,
+  CONSTRAINT fk_products_services_vendor FOREIGN KEY(default_vendor_id) REFERENCES vendors(id) ON DELETE SET NULL
 );
 
 CREATE TABLE quotes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   company_id INTEGER NOT NULL,
   customer_id INTEGER NOT NULL,
-  quote_number VARCHAR(100) UNIQUE,
-  issue_date DATE,
+  product_service_id INTEGER,
+  quote_number VARCHAR(100) UNIQUE NOT NULL,
+  issue_date DATE NOT NULL,
   valid_until DATE,
-  subtotal DECIMAL(18,3),
-  tax_amount DECIMAL(18,3),
-  discount_amount DECIMAL(18,3),
-  total_amount DECIMAL(18,3),
+  subtotal DECIMAL(18,3) NOT NULL,
+  tax_rate DECIMAL(6,2) DEFAULT 16.00,
+  tax_amount DECIMAL(18,3) NOT NULL,
+  discount_amount DECIMAL(18,3) DEFAULT 0.000,
+  total_amount DECIMAL(18,3) NOT NULL,
   status VARCHAR(50) DEFAULT 'Sent', -- Draft | Sent | Accepted | ConvertedToInvoice | Expired
+  converted_invoice_number VARCHAR(100),
   notes TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(company_id) REFERENCES companies(id),
-  FOREIGN KEY(customer_id) REFERENCES customers(id)
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_quotes_company FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE,
+  CONSTRAINT fk_quotes_customer FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_quotes_product_service FOREIGN KEY(product_service_id) REFERENCES products_services(id) ON DELETE SET NULL
 );
 
 CREATE TABLE contracts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   company_id INTEGER NOT NULL,
-  party_type VARCHAR(50), -- Customer | Vendor
-  party_id INTEGER NOT NULL,
-  contract_number VARCHAR(100) UNIQUE,
+  party_type VARCHAR(50) NOT NULL, -- Customer | Vendor
+  customer_id INTEGER,
+  vendor_id INTEGER,
+  source_quote_id INTEGER,
+  contract_number VARCHAR(100) UNIQUE NOT NULL,
   contract_title VARCHAR(255) NOT NULL,
-  start_date DATE,
+  start_date DATE NOT NULL,
   end_date DATE,
-  contract_value DECIMAL(18,3),
-  billing_cycle VARCHAR(50), -- Monthly | Quarterly | Annual | Milestone
-  stamp_duty_paid DECIMAL(18,3) DEFAULT 0.000,
+  contract_value DECIMAL(18,3) NOT NULL,
+  billed_amount DECIMAL(18,3) DEFAULT 0.000,
+  remaining_amount DECIMAL(18,3) NOT NULL,
+  billing_cycle VARCHAR(50) DEFAULT 'Quarterly', -- Monthly | Quarterly | Annual | Milestone
+  stamp_duty_paid DECIMAL(18,3) DEFAULT 0.000, -- رسوم طوابع الواردات الأردنية
   status VARCHAR(50) DEFAULT 'Active',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(company_id) REFERENCES companies(id)
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_contracts_company FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE,
+  CONSTRAINT fk_contracts_customer FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE SET NULL,
+  CONSTRAINT fk_contracts_vendor FOREIGN KEY(vendor_id) REFERENCES vendors(id) ON DELETE SET NULL,
+  CONSTRAINT fk_contracts_quote FOREIGN KEY(source_quote_id) REFERENCES quotes(id) ON DELETE SET NULL
 );
 
 CREATE TABLE invoices (
@@ -823,8 +864,30 @@ export default function StrategicPhaseTwoWorkspace({
   const [selectedAdvisorScenario, setSelectedAdvisorScenario] = useState<'PROFIT_DROP' | 'FINANCIAL_HEALTH' | 'LIVE_LEDGER'>('PROFIT_DROP');
   const [customAdvisorQuestion, setCustomAdvisorQuestion] = useState<string>('');
 
-  // SQL Copy state
+  // SQL Copy state & Relational 4-Table Explorer State
   const [sqlCopied, setSqlCopied] = useState<boolean>(false);
+  const [schemaEntityTab, setSchemaEntityTab] = useState<'vendors' | 'products_services' | 'quotes' | 'contracts'>('vendors');
+  const [vendorsList, setVendorsList] = useState<VendorTableRecord[]>(() => BizJoRelationalSchemaStore.getVendors());
+  const [productsList, setProductsList] = useState<ProductServiceTableRecord[]>(() => BizJoRelationalSchemaStore.getProductsServices());
+  const [quotesList, setQuotesList] = useState<QuoteTableRecord[]>(() => BizJoRelationalSchemaStore.getQuotes());
+  const [contractsList, setContractsList] = useState<ContractTableRecord[]>(() => BizJoRelationalSchemaStore.getContracts());
+
+  // Quick-add form states for the 4 tables
+  const [newVendorName, setNewVendorName] = useState('');
+  const [newVendorTaxNo, setNewVendorTaxNo] = useState('');
+  const [newProdName, setNewProdName] = useState('');
+  const [newProdPrice, setNewProdPrice] = useState('450');
+  const [newQuoteCustomer, setNewQuoteCustomer] = useState('شركة الفجر للاتصالات ذ.م.م');
+  const [newQuoteQty, setNewQuoteQty] = useState('2');
+  const [newContractTitle, setNewContractTitle] = useState('');
+  const [newContractValue, setNewContractValue] = useState('12000');
+
+  const refreshRelationalLists = () => {
+    setVendorsList(BizJoRelationalSchemaStore.getVendors());
+    setProductsList(BizJoRelationalSchemaStore.getProductsServices());
+    setQuotesList(BizJoRelationalSchemaStore.getQuotes());
+    setContractsList(BizJoRelationalSchemaStore.getContracts());
+  };
 
   const cycleData = AccountingCycleStore.computeFullFinancialCycle();
 
@@ -2312,16 +2375,16 @@ export default function StrategicPhaseTwoWorkspace({
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 text-xs">
             {[
               '1. users',
-              '2. companies',
+              '2. companies (الجدول الأب)',
               '3. company_owners',
               '4. company_authorized_persons',
               '5. tax_profiles',
               '6. company_documents',
               '7. customers',
-              '8. vendors (مضاف)',
-              '9. products_services (مضاف)',
-              '10. quotes (مضاف)',
-              '11. contracts (مضاف)',
+              '8. vendors (مرتبط بـ companies)',
+              '9. products_services (مرتبط بـ companies)',
+              '10. quotes (مرتبط بـ companies)',
+              '11. contracts (مرتبط بـ companies)',
               '12. invoices',
               '13. invoice_items',
               '14. payments',
@@ -2335,11 +2398,408 @@ export default function StrategicPhaseTwoWorkspace({
             ].map((tbl) => (
               <div
                 key={tbl}
-                className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 font-mono font-bold text-[11px] text-slate-800 dark:text-slate-200"
+                className={`p-2.5 rounded-xl border font-mono font-bold text-[11px] ${
+                  tbl.includes('مرتبط بـ companies') || tbl.includes('الجدول الأب')
+                    ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
+                    : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200'
+                }`}
               >
                 {tbl}
               </div>
             ))}
+          </div>
+
+          {/* Interactive 4 Expanded Tables Explorer (vendors, products_services, quotes, contracts) linked to companies */}
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-emerald-500/30 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">
+                  البيانات الأساسية الجديدة المرتبطة بجدول الشركات (`companies.id = 1`) والدورة المحاسبية الكاملة
+                </div>
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5">
+                  الشركة الأم: {DEFAULT_COMPANY_RECORD.company_name} (الرقم الضريبي: {DEFAULT_COMPANY_RECORD.tax_number})
+                </h3>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { id: 'vendors' as const, label: `1. البائعين / الموردين (vendors) [${vendorsList.length}]` },
+                  { id: 'products_services' as const, label: `2. المنتجات والخدمات (products_services) [${productsList.length}]` },
+                  { id: 'quotes' as const, label: `3. عروض الأسعار (quotes) [${quotesList.length}]` },
+                  { id: 'contracts' as const, label: `4. العقود (contracts) [${contractsList.length}]` },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setSchemaEntityTab(tab.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      schemaEntityTab === tab.id
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 1. VENDORS TABLE */}
+            {schemaEntityTab === 'vendors' && (
+              <div className="space-y-3">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!newVendorName.trim()) return;
+                    BizJoRelationalSchemaStore.addVendor({
+                      vendor_name: newVendorName.trim(),
+                      tax_number: newVendorTaxNo.trim() || '200998877',
+                      city: 'عمّان',
+                      phone: '+962 6 550 9900',
+                      payment_terms: 30,
+                      withholding_tax_rate: 5,
+                      opening_balance_jod: 0,
+                    });
+                    refreshRelationalLists();
+                    setNewVendorName('');
+                    setNewVendorTaxNo('');
+                    triggerToast('تمت إضافة البائع/المورد بنجاح وربطه بجدول companies (FK: company_id=1) وحساب الذمم الدائنة 2101.');
+                  }}
+                  className="grid grid-cols-1 sm:grid-cols-4 gap-2"
+                >
+                  <input
+                    type="text"
+                    value={newVendorName}
+                    onChange={(e) => setNewVendorName(e.target.value)}
+                    placeholder="اسم البائع / المورد الجديد..."
+                    className="sm:col-span-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs"
+                  />
+                  <input
+                    type="text"
+                    value={newVendorTaxNo}
+                    onChange={(e) => setNewVendorTaxNo(e.target.value)}
+                    placeholder="الرقم الضريبي للمورد (اختياري)..."
+                    className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-mono"
+                  />
+                  <button
+                    type="submit"
+                    className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer"
+                  >
+                    + إضافة بائع (vendors)
+                  </button>
+                </form>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-right border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
+                        <th className="py-2 px-2">ID</th>
+                        <th className="py-2 px-2">company_id (FK)</th>
+                        <th className="py-2 px-2">رمز البائع</th>
+                        <th className="py-2 px-2">اسم البائع / المورد</th>
+                        <th className="py-2 px-2">الرقم الضريبي</th>
+                        <th className="py-2 px-2">اقتطاع WHT</th>
+                        <th className="py-2 px-2">حساب الأستاذ (GL)</th>
+                        <th className="py-2 px-2">الرصيد الافتتاحي (د.أ)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                      {vendorsList.map((v) => (
+                        <tr key={v.id}>
+                          <td className="py-2 px-2 font-mono">{v.id}</td>
+                          <td className="py-2 px-2 font-mono text-emerald-600 dark:text-emerald-400">companies#{v.company_id}</td>
+                          <td className="py-2 px-2 font-mono font-bold">{v.vendor_code}</td>
+                          <td className="py-2 px-2 font-bold">{v.vendor_name}</td>
+                          <td className="py-2 px-2 font-mono">{v.tax_number}</td>
+                          <td className="py-2 px-2 font-mono">{v.withholding_tax_rate}%</td>
+                          <td className="py-2 px-2 font-mono text-sky-600 dark:text-sky-400">{v.ap_gl_account_code} (ذمم دائنة)</td>
+                          <td className="py-2 px-2 font-mono font-bold">{v.opening_balance_jod.toFixed(3)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* 2. PRODUCTS_SERVICES TABLE */}
+            {schemaEntityTab === 'products_services' && (
+              <div className="space-y-3">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!newProdName.trim()) return;
+                    const priceNum = Number(newProdPrice || 100);
+                    BizJoRelationalSchemaStore.addProductService({
+                      item_type: 'Service',
+                      item_name: newProdName.trim(),
+                      sku_code: `SKU-JO-00${productsList.length + 1}`,
+                      unit_price: priceNum,
+                      cost_price: Number((priceNum * 0.4).toFixed(3)),
+                      tax_rate: 16,
+                      default_vendor_id: vendorsList[0]?.id ?? 1,
+                    });
+                    refreshRelationalLists();
+                    setNewProdName('');
+                    triggerToast('تمت إضافة المنتج/الخدمة إلى جدول products_services مع ربطه بجدول companies وحساب الإيرادات 4101.');
+                  }}
+                  className="grid grid-cols-1 sm:grid-cols-4 gap-2"
+                >
+                  <input
+                    type="text"
+                    value={newProdName}
+                    onChange={(e) => setNewProdName(e.target.value)}
+                    placeholder="اسم المنتج أو الخدمة..."
+                    className="sm:col-span-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs"
+                  />
+                  <input
+                    type="number"
+                    value={newProdPrice}
+                    onChange={(e) => setNewProdPrice(e.target.value)}
+                    placeholder="سعر الوحدة (د.أ)..."
+                    className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-mono"
+                  />
+                  <button
+                    type="submit"
+                    className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer"
+                  >
+                    + إضافة منتج/خدمة
+                  </button>
+                </form>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-right border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
+                        <th className="py-2 px-2">ID</th>
+                        <th className="py-2 px-2">company_id (FK)</th>
+                        <th className="py-2 px-2">default_vendor_id (FK)</th>
+                        <th className="py-2 px-2">SKU</th>
+                        <th className="py-2 px-2">اسم المنتج / الخدمة</th>
+                        <th className="py-2 px-2">سعر البيع</th>
+                        <th className="py-2 px-2">ضريبة المبيعات</th>
+                        <th className="py-2 px-2">حساب الإيراد (GL)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                      {productsList.map((p) => (
+                        <tr key={p.id}>
+                          <td className="py-2 px-2 font-mono">{p.id}</td>
+                          <td className="py-2 px-2 font-mono text-emerald-600 dark:text-emerald-400">companies#{p.company_id}</td>
+                          <td className="py-2 px-2 font-mono text-amber-600 dark:text-amber-400">
+                            {p.default_vendor_id ? `vendors#${p.default_vendor_id}` : '—'}
+                          </td>
+                          <td className="py-2 px-2 font-mono font-bold">{p.sku_code}</td>
+                          <td className="py-2 px-2 font-bold">{p.item_name}</td>
+                          <td className="py-2 px-2 font-mono font-bold">{p.unit_price.toFixed(3)} د.أ</td>
+                          <td className="py-2 px-2 font-mono">{p.tax_rate}%</td>
+                          <td className="py-2 px-2 font-mono text-sky-600 dark:text-sky-400">{p.revenue_gl_account_code}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* 3. QUOTES TABLE */}
+            {schemaEntityTab === 'quotes' && (
+              <div className="space-y-3">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const firstProd = productsList[0];
+                    if (!firstProd) return;
+                    const qtyNum = Math.max(1, Number(newQuoteQty || 1));
+                    BizJoRelationalSchemaStore.addQuote({
+                      customer_id: 'CUST-01',
+                      customer_name: newQuoteCustomer.trim() || 'شركة الفجر للاتصالات ذ.م.م',
+                      product_service_id: firstProd.id,
+                      subtotal: firstProd.unit_price * qtyNum,
+                      tax_rate: firstProd.tax_rate,
+                      notes: 'عرض سعر صادر من جدول quotes ومرتبط بجدول companies',
+                    });
+                    refreshRelationalLists();
+                    triggerToast('تم إنشاء عرض السعر (quotes) وربطه بجدول companies و products_services.');
+                  }}
+                  className="grid grid-cols-1 sm:grid-cols-4 gap-2"
+                >
+                  <input
+                    type="text"
+                    value={newQuoteCustomer}
+                    onChange={(e) => setNewQuoteCustomer(e.target.value)}
+                    placeholder="اسم العميل..."
+                    className="sm:col-span-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs"
+                  />
+                  <input
+                    type="number"
+                    value={newQuoteQty}
+                    onChange={(e) => setNewQuoteQty(e.target.value)}
+                    placeholder="الكمية..."
+                    className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-mono"
+                  />
+                  <button
+                    type="submit"
+                    className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer"
+                  >
+                    + إصدار عرض سعر (quotes)
+                  </button>
+                </form>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-right border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
+                        <th className="py-2 px-2">رقم العرض</th>
+                        <th className="py-2 px-2">company_id (FK)</th>
+                        <th className="py-2 px-2">العميل (customer_id)</th>
+                        <th className="py-2 px-2">المنتج/الخدمة (FK)</th>
+                        <th className="py-2 px-2">الصافي</th>
+                        <th className="py-2 px-2">الضريبة (16%)</th>
+                        <th className="py-2 px-2">الإجمالي</th>
+                        <th className="py-2 px-2">التكامل مع الدورة المحاسبية</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                      {quotesList.map((q) => (
+                        <tr key={q.id}>
+                          <td className="py-2 px-2 font-mono font-bold">{q.quote_number}</td>
+                          <td className="py-2 px-2 font-mono text-emerald-600 dark:text-emerald-400">companies#{q.company_id}</td>
+                          <td className="py-2 px-2 font-bold">{q.customer_name}</td>
+                          <td className="py-2 px-2 font-mono text-amber-600 dark:text-amber-400">
+                            products_services#{q.product_service_id}
+                          </td>
+                          <td className="py-2 px-2 font-mono">{q.subtotal.toFixed(3)} د.أ</td>
+                          <td className="py-2 px-2 font-mono">{q.tax_amount.toFixed(3)} د.أ</td>
+                          <td className="py-2 px-2 font-mono font-bold">{q.total_amount.toFixed(3)} د.أ</td>
+                          <td className="py-2 px-2">
+                            {q.status === 'ConvertedToInvoice' ? (
+                              <span className="px-2 py-1 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] font-bold">
+                                تم الترحيل ({q.converted_invoice_number})
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  const res = BizJoRelationalSchemaStore.convertQuoteToInvoiceAndLedger(q.id);
+                                  if (res) {
+                                    refreshRelationalLists();
+                                    triggerToast(
+                                      `تم تحويل عرض السعر ${q.quote_number} إلى فاتورة (${res.invoiceNumber}) وترحيل قيد اليومية (${res.voucherNo}) إلى الأستاذ العام!`
+                                    );
+                                  }
+                                }}
+                                className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold cursor-pointer"
+                              >
+                                تحويل لفاتورة وقيد يومية ➔
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* 4. CONTRACTS TABLE */}
+            {schemaEntityTab === 'contracts' && (
+              <div className="space-y-3">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!newContractTitle.trim()) return;
+                    const val = Number(newContractValue || 10000);
+                    BizJoRelationalSchemaStore.addContract({
+                      party_type: 'Customer',
+                      party_id: 'CUST-01',
+                      party_name: 'مجموعة الشرق الأوسط للاستثمار',
+                      contract_title: newContractTitle.trim(),
+                      contract_value: val,
+                      billing_cycle: 'Quarterly',
+                      source_quote_id: quotesList[0]?.id,
+                    });
+                    refreshRelationalLists();
+                    setNewContractTitle('');
+                    triggerToast('تم إبرام العقد في جدول contracts وربطه بجدول companies واحتساب رسوم طوابع الواردات الأردنية.');
+                  }}
+                  className="grid grid-cols-1 sm:grid-cols-4 gap-2"
+                >
+                  <input
+                    type="text"
+                    value={newContractTitle}
+                    onChange={(e) => setNewContractTitle(e.target.value)}
+                    placeholder="عنوان العقد الجديد..."
+                    className="sm:col-span-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs"
+                  />
+                  <input
+                    type="number"
+                    value={newContractValue}
+                    onChange={(e) => setNewContractValue(e.target.value)}
+                    placeholder="قيمة العقد (د.أ)..."
+                    className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-mono"
+                  />
+                  <button
+                    type="submit"
+                    className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer"
+                  >
+                    + إضافة عقد (contracts)
+                  </button>
+                </form>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-right border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
+                        <th className="py-2 px-2">رقم العقد</th>
+                        <th className="py-2 px-2">company_id (FK)</th>
+                        <th className="py-2 px-2">عنوان العقد والطرف</th>
+                        <th className="py-2 px-2">قيمة العقد</th>
+                        <th className="py-2 px-2">المفوتر</th>
+                        <th className="py-2 px-2">المتبقي</th>
+                        <th className="py-2 px-2">طوابع الواردات</th>
+                        <th className="py-2 px-2">فوترة دفعة العقد</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                      {contractsList.map((c) => (
+                        <tr key={c.id}>
+                          <td className="py-2 px-2 font-mono font-bold">{c.contract_number}</td>
+                          <td className="py-2 px-2 font-mono text-emerald-600 dark:text-emerald-400">companies#{c.company_id}</td>
+                          <td className="py-2 px-2">
+                            <div className="font-bold">{c.contract_title}</div>
+                            <div className="text-[11px] text-slate-500">{c.party_name} ({c.party_type})</div>
+                          </td>
+                          <td className="py-2 px-2 font-mono font-bold">{c.contract_value.toFixed(3)} د.أ</td>
+                          <td className="py-2 px-2 font-mono text-emerald-600 dark:text-emerald-400">{c.billed_amount.toFixed(3)} د.أ</td>
+                          <td className="py-2 px-2 font-mono text-amber-600 dark:text-amber-400">{c.remaining_amount.toFixed(3)} د.أ</td>
+                          <td className="py-2 px-2 font-mono">{c.stamp_duty_paid.toFixed(3)} د.أ</td>
+                          <td className="py-2 px-2">
+                            {c.party_type === 'Customer' && c.remaining_amount > 0 ? (
+                              <button
+                                onClick={() => {
+                                  const res = BizJoRelationalSchemaStore.billContractMilestoneToLedger(c.id, 1500);
+                                  if (res) {
+                                    refreshRelationalLists();
+                                    triggerToast(
+                                      `تم فوترة دفعة من العقد ${c.contract_number} بمبلغ 1,500 د.أ (+ضريبة 16%) وإصدار المستند (${res.docNo}) والقيد (${res.voucherNo})!`
+                                    );
+                                  }
+                                }}
+                                className="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold cursor-pointer"
+                              >
+                                فوترة دفعة لليومية ➔
+                              </button>
+                            ) : (
+                              <span className="text-[11px] text-slate-400">عقد مورد / مكتمل</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
 
           <pre className="p-4 rounded-2xl bg-slate-950 text-emerald-300 font-mono text-[11px] overflow-x-auto max-h-96 leading-relaxed border border-slate-800" dir="ltr">

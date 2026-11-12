@@ -3,9 +3,9 @@ export type Language = 'ar' | 'en';
 export const LOCALES = {
   ar: {
     common: {
-      platformName: 'منصة الأعمال والمحاسبة والامتثال الضريبي الأردنية',
-      shortBrand: 'منصة الأعمال والمحاسبة الأردنية · SME SaaS',
-      brandSubtitle: 'منصة SaaS أردنية للمحاسبة والفوترة الإلكترونية والامتثال الضريبي للشركات الصغيرة والمتوسطة.',
+      platformName: 'BizJo — منصة الأعمال والمحاسبة والامتثال الضريبي الأردنية',
+      shortBrand: 'BizJo',
+      brandSubtitle: 'BizJo — منصة SaaS وERP أردنية للأعمال والمحاسبة والفوترة الإلكترونية والامتثال الضريبي.',
       country: 'المملكة الأردنية الهاشمية',
       currency: 'دينار أردني',
       currencyCode: 'د.أ',
@@ -38,9 +38,9 @@ export const LOCALES = {
   },
   en: {
     common: {
-      platformName: 'Jordanian Business, Accounting & Tax Compliance SaaS Platform',
-      shortBrand: 'Jordan Business & Accounting SaaS · SMEs',
-      brandSubtitle: 'Jordanian SaaS platform for accounting, e-invoicing, and tax compliance for small and medium enterprises.',
+      platformName: 'BizJo — Jordanian Business, Accounting & Tax Compliance ERP',
+      shortBrand: 'BizJo',
+      brandSubtitle: 'BizJo — Jordanian SaaS & ERP platform for accounting, e-invoicing, and tax compliance.',
       country: 'Hashemite Kingdom of Jordan',
       currency: 'Jordanian Dinar',
       currencyCode: 'JOD',

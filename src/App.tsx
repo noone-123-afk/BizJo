@@ -22,6 +22,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import JordanLocalBusinessSchema from './components/seo/JordanLocalBusinessSchema';
+import BizJoLogo from './components/brand/BizJoLogo';
 import SimpleHomeDashboard, { SidebarItemId } from './components/erp/SimpleHomeDashboard';
 import ErpModulesWorkspace from './components/erp/ErpModulesWorkspace';
 import StrategicPhaseTwoWorkspace, {
@@ -268,9 +269,10 @@ export default function App() {
                 e.preventDefault();
                 handleSelectSidebar('biz-dashboard');
               }}
-              className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white whitespace-nowrap shrink-0"
+              className="shrink-0 focus:outline-none"
+              aria-label="BizJo Home"
             >
-              {t.common.shortBrand}
+              <BizJoLogo size="md" showTagline={true} />
             </a>
           </div>
 
@@ -335,12 +337,9 @@ export default function App() {
             } lg:block lg:col-span-3 xl:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm lg:sticky lg:top-20 space-y-5 max-h-[calc(100vh-6rem)] overflow-y-auto`}
           >
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-xs font-extrabold text-slate-900 dark:text-white">القائمة الجانبية للمنصة</span>
-              </div>
+              <BizJoLogo size="sm" showTagline={false} />
               <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
-                ERP
+                القائمة
               </span>
             </div>
 
@@ -500,10 +499,10 @@ export default function App() {
       <footer className="mt-8 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-6">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 space-y-3 text-xs text-slate-500 dark:text-slate-400">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <span className="font-bold text-slate-700 dark:text-slate-200">{t.common.platformName}</span>
-              <span className="mx-2" aria-hidden="true">·</span>
-              <span>نظام إدارة الأعمال والمحاسبة والفوترة الإلكترونية والامتثال الضريبي الأردني.</span>
+            <div className="flex items-center gap-3">
+              <BizJoLogo size="sm" showTagline={false} />
+              <span>·</span>
+              <span>{t.common.platformName}</span>
             </div>
             <div className="flex flex-wrap items-center gap-4">
               <button

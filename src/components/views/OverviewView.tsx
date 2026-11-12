@@ -179,7 +179,7 @@ export default function OverviewView({ onNavigateToTab }: OverviewViewProps) {
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
-              منصة الأعمال والمحاسبة والامتثال الضريبي الأردنية
+              BizJo — منصة الأعمال والمحاسبة والامتثال الضريبي الأردنية
             </h1>
 
             <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">

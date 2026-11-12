@@ -1341,7 +1341,7 @@ export default function CompanyAndTaxProfileForms() {
               <h3 className="text-base font-bold text-slate-900 dark:text-white">إنشاء حساب مجاني في المنصة</h3>
             </div>
             <p className="text-xs text-slate-500 leading-relaxed">
-              انضم إلى منصة الأعمال والمحاسبة والامتثال الضريبي الأردنية وابدأ بإدارة حسابات منشأتك وفواتيرك الإلكترونية بدقة وسهولة.
+              انضم إلى منصة BizJo للأعمال والمحاسبة والامتثال الضريبي الأردنية وابدأ بإدارة حسابات منشأتك وفواتيرك الإلكترونية بدقة وسهولة.
             </p>
             <div className="space-y-3">
               <input
